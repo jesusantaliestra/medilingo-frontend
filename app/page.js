@@ -12,10 +12,20 @@ export default function Home() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
+  const getPhrase = async () => {
+    try {
+      const res = await fetch('https://medilingo-api.onrender.com/random-phrase');
+      if (!res.ok) throw new Error('Error al obtener la frase');
+      const data = await res.json();
+      setPhrase(data.phrase);
+    } catch (err) {
+      console.error('Error al cargar la frase:', err);
+      setPhrase('[Error al cargar la frase]');
+    }
+  };
+
   useEffect(() => {
-    fetch('https://medilingo-api.onrender.com/random-phrase')
-      .then(res => res.json())
-      .then(data => setPhrase(data.phrase));
+    getPhrase();
   }, []);
 
   const startRecording = async () => {
@@ -59,6 +69,12 @@ export default function Home() {
       <h1 className="text-2xl font-bold">🎤 MediLingo - English Practice</h1>
       <p className="text-lg">🔁 Say this phrase:</p>
       <div className="bg-gray-100 p-4 rounded text-xl font-semibold">{phrase}</div>
+      <button
+        onClick={getPhrase}
+        className="text-sm text-blue-600 underline mt-1"
+      >
+        🔄 Nueva frase
+      </button>
 
       {!recording && <button onClick={startRecording} className="bg-blue-500 text-white px-4 py-2 rounded">Start Recording</button>}
       {recording && <button onClick={stopRecording} className="bg-red-500 text-white px-4 py-2 rounded">Stop Recording</button>}
